@@ -2,7 +2,7 @@
 
 # Common configuration
 # ====================
-STREAM_FILE="/home/pi/snore.wav" # File to stream as absolute path or relative to directory of this script
+STREAM_FILE="/home/pi/nightcall/snore.wav" # File to stream as absolute path or relative to directory of this script
 APT_GET_DEPS="vlc-nox"         # These space-separated packages will be installed if the VLC tool cvlc is not available
 
 if [ "$HOSTNAME" = zenzi ]; then
