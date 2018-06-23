@@ -38,4 +38,4 @@ cd "$(dirname "$0")"
 cvlc rtp://@:$STREAM_LISTEN_PORT &
 
 # Stream as 8kbps MP3
-cvlc -vvv file://$STREAM_FILE  --file-caching=1000 --sout="#transcode{vcodec=none,acodec=mp3,ab=8k,samplerate=22050,channels=1}:rtp{dst=$STREAM_TARGET_ADDR,port=$STREAM_TARGET_PORT,name=$STREAM_NAME,ttl=3,mux=ts,sdp=sap}"
+cvlc -vvv file://$STREAM_FILE  --loop --file-caching=1000 --sout="#transcode{vcodec=none,acodec=mp3,ab=8k,samplerate=22050,channels=1}:rtp{dst=$STREAM_TARGET_ADDR,port=$STREAM_TARGET_PORT,name=$STREAM_NAME,ttl=3,mux=ts,sdp=sap}"
