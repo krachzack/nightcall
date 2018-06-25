@@ -2,7 +2,7 @@
 
 # Common configuration
 # ====================
-STREAM_URL="alsa://plughw:1,0" # Alsa microphone to stream from
+STREAM_URL="file:speech.wav" # File to stream as absolute path or relative to directory of this script
 APT_GET_DEPS="vlc-nox"         # These space-separated packages will be installed if the VLC tool cvlc is not available
 SAMPLING_RATE=44100
 KBPS="8k"
