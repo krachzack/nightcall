@@ -4,8 +4,8 @@
 # ====================
 STREAM_URL="alsa://plughw:1,0" # Alsa microphone to stream from
 APT_GET_DEPS="vlc-nox"         # These space-separated packages will be installed if the VLC tool cvlc is not available
-SAMPLING_RATE=44100
-KBPS="8k"
+SAMPLING_RATE=22500
+KBPS="16k"
 
 if [ "$HOSTNAME" = zenzi ]; then
     # zenzi only configuration
