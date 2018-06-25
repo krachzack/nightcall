@@ -37,6 +37,9 @@ if ! [ -x "$(command -v cvlc)" ]; then
   sudo bash -c "apt-get update && apt-get upgrade && apt-get install $APT_GET_DEPS"
 fi
 
+# Restart ALSA to ensure USB soundcard is re-initialized
+sudo alsactl nrestore
+
 # cd into script directory
 cd "$(dirname "$0")"
 
