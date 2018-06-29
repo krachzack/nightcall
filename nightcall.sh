@@ -1,57 +1,111 @@
 #!/bin/bash
+#
+# Ensures that pulseaudio, vlc and ntp are installed and configures everything
+# so the local microphone will be streamed to the pulseaudio instance on the
+# other end at $NIGHTCALL_SINK_HOSTNAME. Be sure to set this variable.
+#
+# Per default, the first microphone of the second card (alsa://plughw:1,0) will
+# be streamed. Override this by setting $NIGHTCALL_SOURCE_URL to something VLC
+# can play.
+#
 
-# Common configuration
-# ====================
-STREAM_URL="alsa://plughw:1,0" # Alsa microphone to stream from
-APT_GET_DEPS="vlc-nox"         # These space-separated packages will be installed if the VLC tool cvlc is not available
-SAMPLING_RATE=12000
-KBPS="16k"
-# Caching on receiving end in millisconds
-RECEIVE_CACHE_MS=100
-# Microphone caching before sending in millisconds
-SEND_CACHE_MS=100
+# Configuration
+# =============
+# Stream $NIGHTCALL_SOURCE_URL to $NIGHTCALL_SINK_HOSTNAME or default to
+# streaming first microphone of second card (plughw:1,0)
+NIGHTCALL_SOURCE_URL=${NIGHTCALL_SOURCE_URL:-alsa://plughw:1,0}
+# Other end of connection, defaults to zenzi.local.
+# pulseaudio cookie will be loaded from there for authentication.
+# Also this will be the target of playing the built-in microphone
+NIGHTCALL_SINK_HOSTNAME=${NIGHTCALL_SINK_HOSTNAME:-zenzi.local}
+PULSE_CONFIG="/etc/pulse/default.pa"
+# ============
 
-if [ "$HOSTNAME" = zenzi ]; then
-    # zenzi only configuration
-    # ========================
-    echo "Running nightcall on zenzi..."
-    STREAM_NAME="ZenziToRudi"
-    STREAM_TARGET_ADDR="rudi.local"
-    STREAM_LISTEN_PORT="5004"
-    STREAM_TARGET_PORT="5004"
-else
-    # rudi only configuration
-    # =======================
-    echo "Running nightcall on rudi..."
-    STREAM_NAME="RudiToZenzi"
-    STREAM_TARGET_ADDR="zenzi.local"
-    STREAM_LISTEN_PORT="5004"
-    STREAM_TARGET_PORT="5004"
-fi
+function ask_consent {
+  QUESTION=${1:-Dangerous stuff ahead. Continue anyway?}
+  read -p "$QUESTION [Y/n]" -r
+  if [[ $REPLY != "Y" ]]
+  then
+    return 1 # Non-zero, erroneous
+  else
+    return 0
+  fi
+}
 
-# Ensure VLC is installed
-if ! [ -x "$(command -v cvlc)" ]; then
-  echo 'Error: vlc is not installed, updating packages and installing now. Please enter root password.' >&2
+function bail {
+  echo "error: pulseuadio configuration failed, exiting. Cause: $1"
+  exit 1
+}
 
-  # Run in subshell so only one sudo is required regardless of how long the commands take
-  sudo bash -c "apt-get update && apt-get upgrade && apt-get install $APT_GET_DEPS"
-fi
+function uncomment {
+  if [ ! -f "$1" ]; then
+    bail "File does not exist, cannot uncomment: \"$1\""
+  fi
 
-# Restart ALSA to ensure USB soundcard is re-initialized
-sudo alsactl nrestore
+  if [[ -z "${2// }" ]]; then
+    bail "Pattern to uncomment in $1 was empty or only spaces: $2"
+  fi
 
-# cd into script directory
-cd "$(dirname "$0")"
+  sudo sed -i "/$2/s/^#//g" $1
+}
 
-# Start receiving stream in the background
-cvlc rtp://@:$STREAM_LISTEN_PORT \
-  --network-caching=$RECEIVE_CACHE_MS \
-  --rtsp-caching=$RECEIVE_CACHE_MS &
+function patch_pulse_config {
+  if [ ! -f "$PULSE_CONFIG" ]; then
+    echo "Cannot find pulseaudio configuration."
+    echo "Attempting to install pulseaudio, you may be asked for root privileges..."
+    sudo apt-get install pulseaudio pulseaudio-module-zeroconf alsa-utils avahi-daemon || bail "Installing pulseaudio failed."
 
-# Stream as 8kbps MP3
-cvlc -vvv $STREAM_URL --repeat \
-  --file-caching=$SEND_CACHE_MS \
-  --live-caching=$SEND_CACHE_MS \
-  --rtsp-caching=$SEND_CACHE_MS \
-  --network-caching=$SEND_CACHE_MS \
-  --sout="#transcode{vcodec=none,acodec=mp3,ab=$KBPS,samplerate=$SAMPLING_RATE,channels=1}:rtp{dst=$STREAM_TARGET_ADDR,port=$STREAM_TARGET_PORT,name=$STREAM_NAME,ttl=3,mux=ts,sdp=sap}"
+    if [ ! -f "$PULSE_CONFIG" ]; then
+      bail "Installed pulseaudio, still cannot find $PULSE_CONFIG configuration file."
+    fi
+  fi
+
+  echo "Patching $PULSE_CONFIG ..."
+  uncomment $PULSE_CONFIG "module-native-protocol-tcp"
+  uncomment $PULSE_CONFIG "module-zeroconf-publish"
+}
+
+function pull_pulse_cookie {
+    if ask_consent "Will attempt to copy pulseaudio cookie from $NIGHTCALL_SINK_HOSTNAME. Continue?"
+    then
+      echo "Trying to copy pulseaudio cookie from $NIGHTCALL_SINK_HOSTNAME via scp..."
+      echo "You will be asked to enter the remote password for permission."
+      mkdir -p ~/.config/pulse && scp pi@$NIGHTCALL_SINK_HOSTNAME:~/.config/pulse/cookie ~/.config/pulse/cookie || bail "Failed to copy remote pulseaudio cookie."
+      echo "Done copying pulseaudio cookie from $NIGHTCALL_SINK_HOSTNAME"
+    else
+      ask_consent "Continue without setting cookie?" || bail "Stopping at user request."
+      echo "WARNING: No cookie copied. You should NOT skip this on the other machine or you are in deep shit."
+    fi
+}
+
+function ensure_vlc_installed {
+  if ! [ -x "$(command -v cvlc)" ]; then
+    echo "cvlc not found, attempting to install vlc-nox now..."
+
+    # Run in subshell so only one sudo is required regardless of how long the commands take
+    sudo apt-get install vlc-nox || bail "Failed to install vlc."
+  fi
+}
+
+function sync_time {
+  if ! [ -x "$(command -v ntpq)" ]; then
+    echo "Cannot find ntpq tool for timesync, trying to install NTP."
+    sudo apt-get install ntp || bail "Could not install NTP."
+  fi
+
+  echo "NTP servers:"
+  ntpq -p
+}
+
+echo "Configuring pulseaudio..." && \
+patch_pulse_config && \
+pull_pulse_cookie && \
+sync_time && \
+echo "Done, pulseaudio is configured."
+
+echo "Starting pulseaudio in the background." && \
+pulseaudio -D
+
+echo "Sending microphone to $NIGHTCALL_SINK_HOSTNAME..." && \
+ensure_vlc_installed && \
+PULSE_SERVER=$NIGHTCALL_SINK_HOSTNAME cvlc --repeat ~/nightcall/speech.wav
