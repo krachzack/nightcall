@@ -108,4 +108,4 @@ pulseaudio -D
 
 echo "Sending microphone to $NIGHTCALL_SINK_HOSTNAME..." && \
 ensure_vlc_installed && \
-PULSE_SERVER=$NIGHTCALL_SINK_HOSTNAME cvlc --repeat ~/nightcall/speech.wav
+PULSE_SERVER=$NIGHTCALL_SINK_HOSTNAME cvlc $NIGHTCALL_SOURCE_URL
