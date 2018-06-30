@@ -93,22 +93,24 @@ function ensure_pulseaudio_running {
   if [ ! -f "$PULSE_UNIT_FILE" ]
   then
     echo "No pulseaudio unit file found at $PULSE_UNIT_FILE, creating it..."
+    echo "You may be asked to authenticate..."
 
-    echo "[Unit]" > $PULSE_UNIT_FILE
-    echo "Description=PulseAudio Daemon" >> $PULSE_UNIT_FILE
-    echo "" >> $PULSE_UNIT_FILE
-    echo "[Install]" >> $PULSE_UNIT_FILE
-    echo "WantedBy=multi-user.target" >> $PULSE_UNIT_FILE
-    echo "" >> $PULSE_UNIT_FILE
-    echo "[Service]" >> $PULSE_UNIT_FILE
-    echo "Type=simple" >> $PULSE_UNIT_FILE
-    echo "PrivateTmp=true" >> $PULSE_UNIT_FILE
-    echo "ExecStart=/usr/bin/pulseaudio –system –realtime –disallow-exit –no-cpu-limit" >> $PULSE_UNIT_FILE
+    sudo echo "[Unit]" > $PULSE_UNIT_FILE
+    sudo echo "Description=PulseAudio Daemon" >> $PULSE_UNIT_FILE
+    sudo echo "" >> $PULSE_UNIT_FILE
+    sudo echo "[Install]" >> $PULSE_UNIT_FILE
+    sudo echo "WantedBy=multi-user.target" >> $PULSE_UNIT_FILE
+    sudo echo "" >> $PULSE_UNIT_FILE
+    sudo echo "[Service]" >> $PULSE_UNIT_FILE
+    sudo echo "Type=simple" >> $PULSE_UNIT_FILE
+    sudo echo "PrivateTmp=true" >> $PULSE_UNIT_FILE
+    sudo echo "ExecStart=/usr/bin/pulseaudio –system –realtime –disallow-exit –no-cpu-limit" >> $PULSE_UNIT_FILE
 
     echo "Enabling pulseaudio at startup..."
     sudo systemctl enable pulseaudio
   fi
 
+  echo "Ensuring pulseaudio is running, this may require authentication..."
   sudo systemctl start pulseaudio
 }
 
@@ -117,7 +119,4 @@ patch_pulse_config && \
 pull_pulse_cookie && \
 ensure_pulseaudio_running && \
 sync_time && \
-echo "Done, pulseaudio is configured."
-
-echo "Starting pulseaudio in the background." && \
-pulseaudio -D
+echo "Done, pulseaudio is configured and running."
