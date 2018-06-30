@@ -103,9 +103,10 @@ Description=PulseAudio Daemon
 WantedBy=multi-user.target
 
 [Service]
+User=pi
 Type=simple
 PrivateTmp=true
-ExecStart=/usr/bin/pulseaudio --system --disallow-exit
+ExecStart=/usr/bin/pulseaudio --disallow-exit
     ' > $PULSE_UNIT_FILE"
 
     echo "Enabling pulseaudio at startup..."
