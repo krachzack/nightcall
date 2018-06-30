@@ -14,12 +14,19 @@ microphone of the second soundcard, set the environment variable
 `NIGHTCALL_SOURCE_URL` to something VLC can play.
 
 ## Running
-Everything set up? Run `./nightcall.sh` on both devices to set up everything and
-start streaming. This will take a while on the first run, since pulseaudio, VLC
-and NTP have to be installed first, unless you already did so.
-
-Apart from installing the necessary packages, this will set the local pulseaudio
+Everything set up? First, run `./pulseaudio.sh` on both devices to set up
+everything for streaming. This will take a while on the first run, since
+pulseaudio and NTP have to be installed first, unless you already did so. Apart
+from installing the necessary packages, this will set the local pulseaudio
 cookie to the cookie of `NIGHTCALL_SINK_HOSTNAME` over scp, requiring you to
 login on the remote machine via SSH.
 
-Run `nightcall.sh` to set up pulseaudio, vlc
+When both devices are done, you can use the other end as a pulse audio server to
+play some sound remotely in applications that support pulseaudio.
+
+For example, to play `audio.wav` with VLC on the other end, run:
+
+    PULSE_SERVER=$NIGHTCALL_SINK_HOSTNAME cvlc audio.wav
+
+You probably just want to hear the microphone on this end on the speakers on
+the other end. In this case, just run `./nightcall.sh` and enjoy. It will stream `NIGHTCALL_SOURCE_URL` to the other end at `NIGHTCALL_SINK_HOSTNAME`.
