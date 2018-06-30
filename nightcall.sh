@@ -50,7 +50,7 @@ echo "Pumping up the volume..."
 pump_up_the_volume
 
 echo "Waiting until $NIGHTCALL_SINK_HOSTNAME becomes reachable via ping..."
-until ping -c1 $NIGHTCALL_SINK_HOSTNAME &>/dev/null; do :; done
+while ! ping -c1 $NIGHTCALL_SINK_HOSTNAME &>/dev/null; do echo "Not reachable yet, waiting 5 seconds" && sleep 5; done
 
 echo "Sending microphone to $NIGHTCALL_SINK_HOSTNAME..."
 ensure_vlc_installed && \
