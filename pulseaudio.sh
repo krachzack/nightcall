@@ -94,24 +94,22 @@ function ensure_pulseaudio_running {
   then
     echo "No pulseaudio unit file found at $PULSE_UNIT_FILE, creating it..."
 
-    echo "
-[Unit]
-Description=PulseAudio Daemon
-
-[Install]
-WantedBy=multi-user.target
-
-[Service]
-Type=simple
-PrivateTmp=true
-ExecStart=/usr/bin/pulseaudio –system –realtime –disallow-exit –no-cpu-limit" \
-    > $PULSE_UNIT_FILE
+    echo "[Unit]" > $PULSE_UNIT_FILE
+    echo "Description=PulseAudio Daemon" >> $PULSE_UNIT_FILE
+    echo "" >> $PULSE_UNIT_FILE
+    echo "[Install]" >> $PULSE_UNIT_FILE
+    echo "WantedBy=multi-user.target" >> $PULSE_UNIT_FILE
+    echo "" >> $PULSE_UNIT_FILE
+    echo "[Service]" >> $PULSE_UNIT_FILE
+    echo "Type=simple" >> $PULSE_UNIT_FILE
+    echo "PrivateTmp=true" >> $PULSE_UNIT_FILE
+    echo "ExecStart=/usr/bin/pulseaudio –system –realtime –disallow-exit –no-cpu-limit" >> $PULSE_UNIT_FILE
 
     echo "Enabling pulseaudio at startup..."
-    systemctl enable pulseaudio
+    sudo systemctl enable pulseaudio
   fi
 
-  systemctl start pulseaudio
+  sudo systemctl start pulseaudio
 }
 
 echo "Configuring pulseaudio..." && \
