@@ -49,6 +49,9 @@ function pump_up_the_volume {
 echo "Pumping up the volume..."
 pump_up_the_volume
 
+echo "Waiting until $NIGHTCALL_SINK_HOSTNAME becomes reachable via ping..."
+until ping -c1 $NIGHTCALL_SINK_HOSTNAME &>/dev/null; do :; done
+
 echo "Sending microphone to $NIGHTCALL_SINK_HOSTNAME..."
 ensure_vlc_installed && \
 PULSE_SERVER=$NIGHTCALL_SINK_HOSTNAME cvlc $NIGHTCALL_SOURCE_URL

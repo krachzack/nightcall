@@ -29,4 +29,9 @@ For example, to play `audio.wav` with VLC on the other end, run:
     PULSE_SERVER=$NIGHTCALL_SINK_HOSTNAME cvlc audio.wav
 
 You probably just want to hear the microphone on this end on the speakers on
-the other end. In this case, just run `./nightcall.sh` and enjoy. It will stream `NIGHTCALL_SOURCE_URL` to the other end at `NIGHTCALL_SINK_HOSTNAME`.
+the other end. In this case, just run `./nightcall.sh` and enjoy. It will
+wait until `NIGHTCALL_SINK_HOSTNAME` becomes reachable via ping and then streams `NIGHTCALL_SOURCE_URL` there.
+
+You can have `nightcall.sh` automatically be started at startup by running `install_nightcall.sh`. With this in place the two devices will connect
+without user intervention. The service needs to be restarted if the connection
+is lost, however.
