@@ -95,7 +95,7 @@ function ensure_pulseaudio_running {
     echo "No pulseaudio unit file found at $PULSE_UNIT_FILE, creating it..."
     echo "You may be asked to authenticate..."
 
-    sudo cat <<< '
+    sudo bash -c "cat <<< '
 [Unit]
 Description=PulseAudio Daemon
 
@@ -106,7 +106,7 @@ WantedBy=multi-user.target
 Type=simple
 PrivateTmp=true
 ExecStart=/usr/bin/pulseaudio –system –realtime –disallow-exit –no-cpu-limit
-    ' > $PULSE_UNIT_FILE
+    ' > $PULSE_UNIT_FILE"
 
     echo "Enabling pulseaudio at startup..."
     sudo systemctl daemon-reload
