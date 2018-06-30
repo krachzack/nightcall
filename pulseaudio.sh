@@ -18,7 +18,8 @@
 # Also this will be the target of playing the built-in microphone in the
 # nightcall script.
 NIGHTCALL_SINK_HOSTNAME=${NIGHTCALL_SINK_HOSTNAME:-zenzi.local}
-PULSE_CONFIG="/etc/pulse/default.pa"
+PULSE_DEFAULT_PA="/etc/pulse/default.pa"
+PULSE_CLIENT_CONFIG="/etc/pulse/client.conf"
 # ============
 
 function ask_consent {
@@ -46,23 +47,26 @@ function uncomment {
     bail "Pattern to uncomment in $1 was empty or only spaces: $2"
   fi
 
-  sudo sed -i "/$2/s/^#//g" $1
+  sudo sed -i "/$2/s/^[;#]//g" $1
 }
 
 function patch_pulse_config {
-  if [ ! -f "$PULSE_CONFIG" ]; then
+  if [ ! -f "$PULSE_DEFAULT_PA" ]; then
     echo "Cannot find pulseaudio configuration."
     echo "Attempting to install pulseaudio, you may be asked for root privileges..."
     sudo apt-get install pulseaudio pulseaudio-module-zeroconf alsa-utils avahi-daemon || bail "Installing pulseaudio failed."
 
-    if [ ! -f "$PULSE_CONFIG" ]; then
-      bail "Installed pulseaudio, still cannot find $PULSE_CONFIG configuration file."
+    if [ ! -f "$PULSE_DEFAULT_PA" ]; then
+      bail "Installed pulseaudio, still cannot find $PULSE_DEFAULT_PA configuration file."
     fi
   fi
 
-  echo "Patching $PULSE_CONFIG ..."
-  uncomment $PULSE_CONFIG "module-native-protocol-tcp"
-  uncomment $PULSE_CONFIG "module-zeroconf-publish"
+  echo "Patching $PULSE_DEFAULT_PA ..."
+  uncomment $PULSE_DEFAULT_PA "module-native-protocol-tcp"
+  uncomment $PULSE_DEFAULT_PA "module-zeroconf-publish"
+
+  echo "Patching $PULSE_CLIENT_CONFIG ..."
+  uncomment $PULSE_CLIENT_CONFIG "autospawn = yes"
 }
 
 function pull_pulse_cookie {

@@ -41,6 +41,14 @@ function ensure_vlc_installed {
   fi
 }
 
-echo "Sending microphone to $NIGHTCALL_SINK_HOSTNAME..." && \
+function pump_up_the_volume {
+  amixer set Master -- 100%
+  amixer set Capture -- 100%
+}
+
+echo "Pumping up the volume..."
+pump_up_the_volume
+
+echo "Sending microphone to $NIGHTCALL_SINK_HOSTNAME..."
 ensure_vlc_installed && \
 PULSE_SERVER=$NIGHTCALL_SINK_HOSTNAME cvlc $NIGHTCALL_SOURCE_URL
