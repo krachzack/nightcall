@@ -107,6 +107,7 @@ function ensure_pulseaudio_running {
     sudo echo "ExecStart=/usr/bin/pulseaudio –system –realtime –disallow-exit –no-cpu-limit" >> $PULSE_UNIT_FILE
 
     echo "Enabling pulseaudio at startup..."
+    sudo systemctl daemon-reload
     sudo systemctl enable pulseaudio
   fi
 
