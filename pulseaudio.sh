@@ -19,7 +19,7 @@
 # nightcall script.
 NIGHTCALL_SINK_HOSTNAME=${NIGHTCALL_SINK_HOSTNAME:-zenzi.local}
 PULSE_DEFAULT_PA="/etc/pulse/default.pa"
-PULSE_CLIENT_CONFIG="/etc/pulse/client.conf"
+PULSE_UNIT_FILE="/etc/systemd/system/pulseaudio.service"
 # ============
 
 function ask_consent {
@@ -64,9 +64,6 @@ function patch_pulse_config {
   echo "Patching $PULSE_DEFAULT_PA ..."
   uncomment $PULSE_DEFAULT_PA "module-native-protocol-tcp"
   uncomment $PULSE_DEFAULT_PA "module-zeroconf-publish"
-
-  echo "Patching $PULSE_CLIENT_CONFIG ..."
-  uncomment $PULSE_CLIENT_CONFIG "autospawn = yes"
 }
 
 function pull_pulse_cookie {
@@ -92,9 +89,35 @@ function sync_time {
   ntpq -p
 }
 
+function ensure_pulseaudio_running {
+  if [ ! -f "$PULSE_UNIT_FILE" ]
+  then
+    echo "No pulseaudio unit file found at $PULSE_UNIT_FILE, creating it..."
+
+    echo "
+[Unit]
+Description=PulseAudio Daemon
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+Type=simple
+PrivateTmp=true
+ExecStart=/usr/bin/pulseaudio –system –realtime –disallow-exit –no-cpu-limit" \
+    > $PULSE_UNIT_FILE
+
+    echo "Enabling pulseaudio at startup..."
+    systemctl enable pulseaudio
+  fi
+
+  systemctl start pulseaudio
+}
+
 echo "Configuring pulseaudio..." && \
 patch_pulse_config && \
 pull_pulse_cookie && \
+ensure_pulseaudio_running && \
 sync_time && \
 echo "Done, pulseaudio is configured."
 
