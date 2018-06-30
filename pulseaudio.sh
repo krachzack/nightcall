@@ -95,16 +95,18 @@ function ensure_pulseaudio_running {
     echo "No pulseaudio unit file found at $PULSE_UNIT_FILE, creating it..."
     echo "You may be asked to authenticate..."
 
-    sudo echo "[Unit]" > $PULSE_UNIT_FILE
-    sudo echo "Description=PulseAudio Daemon" >> $PULSE_UNIT_FILE
-    sudo echo "" >> $PULSE_UNIT_FILE
-    sudo echo "[Install]" >> $PULSE_UNIT_FILE
-    sudo echo "WantedBy=multi-user.target" >> $PULSE_UNIT_FILE
-    sudo echo "" >> $PULSE_UNIT_FILE
-    sudo echo "[Service]" >> $PULSE_UNIT_FILE
-    sudo echo "Type=simple" >> $PULSE_UNIT_FILE
-    sudo echo "PrivateTmp=true" >> $PULSE_UNIT_FILE
-    sudo echo "ExecStart=/usr/bin/pulseaudio –system –realtime –disallow-exit –no-cpu-limit" >> $PULSE_UNIT_FILE
+    sudo cat <<< '
+[Unit]
+Description=PulseAudio Daemon
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+Type=simple
+PrivateTmp=true
+ExecStart=/usr/bin/pulseaudio –system –realtime –disallow-exit –no-cpu-limit
+    ' > $PULSE_UNIT_FILE
 
     echo "Enabling pulseaudio at startup..."
     sudo systemctl daemon-reload
