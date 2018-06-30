@@ -105,7 +105,7 @@ WantedBy=multi-user.target
 [Service]
 Type=simple
 PrivateTmp=true
-ExecStart=/usr/bin/pulseaudio –-system -–disallow-exit
+ExecStart=/usr/bin/pulseaudio --system --disallow-exit
     ' > $PULSE_UNIT_FILE"
 
     echo "Enabling pulseaudio at startup..."
