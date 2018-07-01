@@ -50,6 +50,15 @@ function pump_up_the_volume {
   amixer set Capture -- 100%
 }
 
+function await_mdns {
+  echo "Waiting until $NIGHTCALL_SINK_HOSTNAME can be resolved in the network..."
+  while ! getent hosts $NIGHTCALL_SINK_HOSTNAME
+  do
+    echo "Cannot resolve $NIGHTCALL_SINK_HOSTNAME yet, waiting 5 seconds and trying again"
+    sleep 5
+  done
+}
+
 function await_ping {
   echo "Waiting until $NIGHTCALL_SINK_HOSTNAME becomes reachable via ping..."
   # Wait a million seconds or until 10 packets received
@@ -68,6 +77,7 @@ function await_streaming {
 echo "Pumping up the volume..."
 pump_up_the_volume
 
+await_mdns
 await_ping
 await_streaming
 
