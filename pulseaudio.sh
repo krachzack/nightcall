@@ -98,6 +98,8 @@ function ensure_pulseaudio_running {
     sudo bash -c "cat <<< '
 [Unit]
 Description=PulseAudio Daemon
+Requires=networking.service avahi-daemon.service
+After=ntp.service ssh.service dhcpcd.service bluetooth.service
 
 [Install]
 WantedBy=multi-user.target

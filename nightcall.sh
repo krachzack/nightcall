@@ -28,7 +28,7 @@ function ask_consent {
 }
 
 function bail {
-  echo "error: pulseuadio configuration failed, exiting. Cause: $1"
+  echo "error: nightcall failed, exiting. Cause: $1"
   exit 1
 }
 

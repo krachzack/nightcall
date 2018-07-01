@@ -4,6 +4,8 @@ echo "Adding nightcall unit file, this may reuire authentication..."
 sudo bash -c "cat <<< '
 [Unit]
 Description=nightcall
+Requires=pulseaudio.service
+After=pulseaudio.service
 
 [Install]
 WantedBy=multi-user.target
