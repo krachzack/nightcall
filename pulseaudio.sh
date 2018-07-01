@@ -72,6 +72,12 @@ function patch_pulse_config {
     echo "Patching $PULSE_CLIENT_CONF ..."
     sudo bash -c "echo 'autospawn=no' >> $PULSE_CLIENT_CONF"
     sudo bash -c "echo 'auto-connect-localhost=yes' >> $PULSE_CLIENT_CONF"
+
+    if ask_consent "Should I set default-sink and default-source to our USB dongle?"
+    then
+      sudo bash -c "echo 'default-sink = alsa_output.usb-C-Media_Electronics_Inc._USB_Audio_Device-00.analog-stereo' >> $PULSE_CLIENT_CONF"
+      sudo bash -c "echo 'default-source = alsa_input.usb-C-Media_Electronics_Inc._USB_Audio_Device-00.analog-mono' >> $PULSE_CLIENT_CONF"
+    fi
     # sudo bash -c "echo 'default-server=127.0.0.1' >> $PULSE_CLIENT_CONF"
   fi
 }
