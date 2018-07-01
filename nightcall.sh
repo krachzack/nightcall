@@ -78,6 +78,25 @@ function await_streaming {
   done
 }
 
+# Streams $NIGHTCALL_SOURCE_URL and restarts if error seen or vlc exits
+function keep_streaming {
+  LOG="/tmp/nightcall-vlc-microphone-stream.log"
+  MATCH="pulse audio output error"
+
+  cvlc $NIGHTCALL_SOURCE_URL > "$LOG" 2>&1 &
+  PID=$!
+
+  while sleep 60
+  do
+      if fgrep --quiet "$MATCH" "$LOG"
+      then
+          kill $PID
+          cvlc $NIGHTCALL_SOURCE_URL > "$LOG" 2>&1 &
+          PID=$!
+      fi
+  done
+}
+
 export PULSE_SERVER=$NIGHTCALL_SINK_HOSTNAME
 
 echo "Pumping up the volume..."
@@ -89,7 +108,7 @@ await_streaming
 
 echo "Sending $NIGHTCALL_SOURCE_URL to $NIGHTCALL_SINK_HOSTNAME..."
 ensure_vlc_installed && \
+keep_streaming
 # Play beep sound locally to signify that other end could be pinged
 # cvlc /home/pi/nightcall/beep.wav vlc://quit && \
 # Then play microphone remotely
-cvlc $NIGHTCALL_SOURCE_URL
