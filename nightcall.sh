@@ -50,22 +50,25 @@ function pump_up_the_volume {
   amixer set Capture -- 100%
 }
 
-function try_send_ready {
-  PULSE_SERVER=$NIGHTCALL_SINK_HOSTNAME cvlc beep.wav vlc://quit 2>&1 >/dev/null | \
-    grep -q 'PulseAudio server connection failure' && \
-    return 1 || return 0
+function await_ping {
+  echo "Waiting until $NIGHTCALL_SINK_HOSTNAME becomes reachable via ping..."
+  ping -oc 100000 8.8.8.8 > /dev/null
+}
+
+function await_streaming {
+  echo "Waiting streaming a static WAV file to $NIGHTCALL_SINK_HOSTNAME succeeds..."
+  while PULSE_SERVER=$NIGHTCALL_SINK_HOSTNAME cvlc $NIGHTCALL_READY_SOURCE_URL vlc://quit 2>&1 >/dev/null | grep -q 'PulseAudio server connection failure'
+  do
+    echo "Reachable via ping, but streaming does not work yet, waiting 5 seconds before trying again"
+    sleep 5
+  done
 }
 
 echo "Pumping up the volume..."
 pump_up_the_volume
 
-echo "Waiting until $NIGHTCALL_SINK_HOSTNAME becomes reachable via ping..."
-while ! ping -c 1 -n -w 1 $NIGHTCALL_SINK_HOSTNAME &>/dev/null
-do echo "Not reachable yet, waiting 5 seconds" && sleep 5; done
-
-echo "Waiting streaming a static WAV file to $NIGHTCALL_SINK_HOSTNAME succeeds..."
-while ! try_send_ready
-do echo "Reachable via ping, but streaming does not work yet, waiting 5 seconds" && sleep 5; done
+await_ping
+await_streaming
 
 echo "Sending microphone to $NIGHTCALL_SINK_HOSTNAME..."
 ensure_vlc_installed && \
