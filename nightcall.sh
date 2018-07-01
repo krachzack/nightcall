@@ -78,7 +78,7 @@ function await_streaming {
   done
 }
 
-PULSE_SERVER=$NIGHTCALL_SINK_HOSTNAME
+export PULSE_SERVER=$NIGHTCALL_SINK_HOSTNAME
 
 echo "Pumping up the volume..."
 pump_up_the_volume
@@ -87,7 +87,7 @@ await_mdns
 await_ping
 await_streaming
 
-echo "Sending microphone to $NIGHTCALL_SINK_HOSTNAME..."
+echo "Sending $NIGHTCALL_SOURCE_URL to $NIGHTCALL_SINK_HOSTNAME..."
 ensure_vlc_installed && \
 # Play beep sound locally to signify that other end could be pinged
 # cvlc /home/pi/nightcall/beep.wav vlc://quit && \
