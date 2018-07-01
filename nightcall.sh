@@ -51,15 +51,9 @@ function pump_up_the_volume {
 }
 
 function try_send_ready {
-  PULSE_SERVER=$NIGHTCALL_SINK_HOSTNAME cvlc beep.wav vlc://quit | grep 'PulseAudio server connection failure'
-  if [ $? == 0 ]; then
-    # VLC printed something about a pulseaudio server connection error,
-    # exit with an error
-    return 1
-  else
-    # VLC printed nothing about a connection failure, seems good
-    return 0
-  fi
+  PULSE_SERVER=$NIGHTCALL_SINK_HOSTNAME cvlc beep.wav vlc://quit 2>&1 >/dev/null | \
+    grep -q 'PulseAudio server connection failure' && \
+    return 1 || return 0
 }
 
 echo "Pumping up the volume..."
