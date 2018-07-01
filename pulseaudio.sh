@@ -20,6 +20,7 @@
 NIGHTCALL_SINK_HOSTNAME=${NIGHTCALL_SINK_HOSTNAME:-zenzi.local}
 PULSE_DEFAULT_PA="/etc/pulse/default.pa"
 PULSE_UNIT_FILE="/etc/systemd/system/pulseaudio.service"
+PULSE_CLIENT_CONF="/etc/pulse/client.conf"
 # ============
 
 function ask_consent {
@@ -64,6 +65,14 @@ function patch_pulse_config {
   echo "Patching $PULSE_DEFAULT_PA ..."
   uncomment $PULSE_DEFAULT_PA "module-native-protocol-tcp"
   uncomment $PULSE_DEFAULT_PA "module-zeroconf-publish"
+
+  # Disable autospawn if not already enabled
+  if grep autospawn=no "$PULSE_CLIENT_CONF"
+  then
+    echo "Patching $PULSE_CLIENT_CONF ..."
+    sudo bash -c "echo 'autospawn=no' >> $PULSE_CLIENT_CONF"
+    sudo bash -c "echo 'auto-connect-localhost=yes' >> $PULSE_CLIENT_CONF"
+  fi
 }
 
 function pull_pulse_cookie {
@@ -98,17 +107,16 @@ function ensure_pulseaudio_running {
     sudo bash -c "cat <<< '
 [Unit]
 Description=PulseAudio Daemon
-Requires=networking.service avahi-daemon.service
-After=ntp.service ssh.service dhcpcd.service bluetooth.service
+Requires=networking.service avahi-daemon.service dbus.service
+Wants=network-online.target
+After=networking.service network-online.target avahi-daemon.service ntp.service ssh.service dhcpcd.service bluetooth.service dbus.socket
 
 [Install]
 WantedBy=multi-user.target
 
 [Service]
-User=pi
-Type=simple
-PrivateTmp=true
-ExecStart=/usr/bin/pulseaudio --disallow-exit
+Type=forking
+ExecStart=/usr/bin/pulseaudio -v --daemonize --disallow-exit --fail=1 --use-pid-file=1
     ' > $PULSE_UNIT_FILE"
 
     echo "Enabling pulseaudio at startup..."
