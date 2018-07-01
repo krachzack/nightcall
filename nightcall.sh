@@ -100,9 +100,8 @@ function keep_streaming {
       # This also restarts vlc if the playlist is over
       if ! ps -p $PID > /dev/null
       then
-        echo "Restarting VLC after exit..."
-        cvlc $NIGHTCALL_SOURCE_URL vlc://quit > "$LOG" 2>&1 &
-        PID=$!
+        echo "Restarting script after VLC exit..."
+        exec /home/pi/nightcall/nightcall.sh
       fi
   done
 }
