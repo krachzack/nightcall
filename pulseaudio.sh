@@ -65,6 +65,7 @@ function patch_pulse_config {
   echo "Patching $PULSE_DEFAULT_PA ..."
   uncomment $PULSE_DEFAULT_PA "module-native-protocol-tcp"
   uncomment $PULSE_DEFAULT_PA "module-zeroconf-publish"
+  sudo bash -c "echo 'resample-method = speex-float-3' >> $PULSE_DEFAULT_PA"
 
   # Disable autospawn if not already enabled
   if ! grep autospawn=no "$PULSE_CLIENT_CONF"
