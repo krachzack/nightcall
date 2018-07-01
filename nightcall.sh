@@ -52,7 +52,8 @@ function pump_up_the_volume {
 
 function await_ping {
   echo "Waiting until $NIGHTCALL_SINK_HOSTNAME becomes reachable via ping..."
-  ping -oc 100000 8.8.8.8 > /dev/null
+  # Wait a million seconds or until 10 packets received
+  ping -c 10 -w 1000000 $NIGHTCALL_SINK_HOSTNAME > /dev/null
 }
 
 function await_streaming {
