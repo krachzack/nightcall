@@ -66,8 +66,9 @@ function await_ping {
 }
 
 function await_streaming {
+  local PULSE_SERVER=$NIGHTCALL_SINK_HOSTNAME
   echo "Waiting streaming a static WAV file to $NIGHTCALL_SINK_HOSTNAME succeeds..."
-  while PULSE_SERVER=$NIGHTCALL_SINK_HOSTNAME cvlc $NIGHTCALL_READY_SOURCE_URL vlc://quit 2>&1 >/dev/null | grep -q 'PulseAudio server connection failure'
+  while cvlc $NIGHTCALL_READY_SOURCE_URL vlc://quit 2>&1 >/dev/null | grep -q 'PulseAudio server connection failure'
   do
     echo "Reachable via ping, but streaming does not work yet, waiting 5 seconds before trying again"
     sleep 5
