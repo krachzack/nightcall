@@ -10,7 +10,10 @@
 # First play some test things to show we are ready
 # Stream $NIGHTCALL_SOURCE_URL to $NIGHTCALL_SINK_HOSTNAME or default to
 # streaming first microphone of second card (plughw:1,0)
-NIGHTCALL_SOURCE_URL=${NIGHTCALL_SOURCE_URL:-/home/pi/nightcall/speech.wav alsa://plughw:1,0}
+NIGHTCALL_SOURCE_URL=${NIGHTCALL_SOURCE_URL:-alsa://plughw:1,0}
+# A wav file to play to the other end as a means of checking whether it
+# works.
+NIGHTCALL_READY_SOURCE_URL=${NIGHTCALL_READY_SOURCE_URL:-/home/pi/nightcall/beep.wav}
 # Other end of connection, defaults to zenzi.local.
 # pulseaudio cookie will be loaded from there for authentication.
 # Also this will be the target of playing the built-in microphone
@@ -47,11 +50,26 @@ function pump_up_the_volume {
   amixer set Capture -- 100%
 }
 
+function try_send_ready {
+  PULSE_SERVER=$NIGHTCALL_SINK_HOSTNAME cvlc beep.wav vlc://quit | grep 'PulseAudio server connection failure'
+  if [ $? == 0 ]; then
+    # VLC printed something about a pulseaudio server connection error,
+    # exit with an error
+    return 1
+  else
+    # VLC printed nothing about a connection failure, seems good
+    return 0
+  fi
+}
+
 echo "Pumping up the volume..."
 pump_up_the_volume
 
 echo "Waiting until $NIGHTCALL_SINK_HOSTNAME becomes reachable via ping..."
 while ! ping -c1 $NIGHTCALL_SINK_HOSTNAME &>/dev/null; do echo "Not reachable yet, waiting 5 seconds" && sleep 5; done
+
+echo "Waiting streaming a static WAV file to $NIGHTCALL_SINK_HOSTNAME succeeds..."
+while ! try_send_ready &>/dev/null; do echo "Reachable via ping, but streaming does not work yet, waiting 5 seconds" && sleep 5; done
 
 echo "Sending microphone to $NIGHTCALL_SINK_HOSTNAME..."
 ensure_vlc_installed && \
