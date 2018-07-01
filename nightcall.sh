@@ -83,7 +83,7 @@ function keep_streaming {
   LOG="/tmp/nightcall-vlc-microphone-stream.log"
   MATCH="pulse audio output error"
 
-  cvlc $NIGHTCALL_SOURCE_URL > "$LOG" 2>&1 &
+  cvlc $NIGHTCALL_SOURCE_URL vlc://quit > "$LOG" 2>&1 &
   PID=$!
 
   while sleep 3
@@ -101,7 +101,7 @@ function keep_streaming {
       if ! ps -p $PID > /dev/null
       then
         echo "Restarting VLC after exit..."
-        cvlc $NIGHTCALL_SOURCE_URL > "$LOG" 2>&1 &
+        cvlc $NIGHTCALL_SOURCE_URL vlc://quit > "$LOG" 2>&1 &
         PID=$!
       fi
   done
