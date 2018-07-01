@@ -134,7 +134,7 @@ ExecStart=/usr/bin/pulseaudio -v --daemonize --disallow-exit --fail=1 --use-pid-
 
     # TODO ENV
     # sudo bash -c "echo 'PULSE_RUNTIME_PATH=/home/pi/.config/pulse/$MACHINE_ID-runtime' >> /etc/environment"
-    sudo bash -c "echo 'PULSE_COOKIE=\"/home/pi/.config/pulse/cookie\"' >> /etc/environment"
+    echo "export PULSE_COOKIE=\"/home/pi/.config/pulse/cookie\"" >> ~/.bashrc
     # PULSE_COOKIE=/home/pi/.config/pulse/cookie
     # PULSE_SERVER=127.0.0.1
 
