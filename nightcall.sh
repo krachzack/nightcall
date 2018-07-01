@@ -10,7 +10,7 @@
 # First play some test things to show we are ready
 # Stream $NIGHTCALL_SOURCE_URL to $NIGHTCALL_SINK_HOSTNAME or default to
 # streaming first microphone of second card (plughw:1,0)
-NIGHTCALL_SOURCE_URL=${NIGHTCALL_SOURCE_URL:-/home/pi/nightcall/speech.wav alsa://plughw:1,0 vlc://quit}
+NIGHTCALL_SOURCE_URL=${NIGHTCALL_SOURCE_URL:-/home/pi/nightcall/speech.wav alsa://plughw:1,0}
 # Other end of connection, defaults to zenzi.local.
 # pulseaudio cookie will be loaded from there for authentication.
 # Also this will be the target of playing the built-in microphone
@@ -55,4 +55,7 @@ while ! ping -c1 $NIGHTCALL_SINK_HOSTNAME &>/dev/null; do echo "Not reachable ye
 
 echo "Sending microphone to $NIGHTCALL_SINK_HOSTNAME..."
 ensure_vlc_installed && \
+# Play beep sound locally to signify that other end could be pinged
+cvlc /home/pi/nightcall/beep.wav vlc://quit && \
+# Then play microphone remotely
 PULSE_SERVER=$NIGHTCALL_SINK_HOSTNAME cvlc $NIGHTCALL_SOURCE_URL
