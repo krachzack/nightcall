@@ -20,6 +20,10 @@ NIGHTCALL_READY_SOURCE_URL=${NIGHTCALL_READY_SOURCE_URL:-/home/pi/nightcall/beep
 NIGHTCALL_SINK_HOSTNAME=${NIGHTCALL_SINK_HOSTNAME:-zenzi.local}
 # ============
 
+# Be sure to load env variables since this might be invoked from
+# systemd which apparently has its own set of environment variables.
+eval $(cat /etc/environment | sed 's/^/export /')
+
 function ask_consent {
   QUESTION=${1:-Dangerous stuff ahead. Continue anyway?}
   read -p "$QUESTION [Y/n]" -r
