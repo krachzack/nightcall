@@ -67,7 +67,7 @@ function patch_pulse_config {
   uncomment $PULSE_DEFAULT_PA "module-zeroconf-publish"
 
   # Disable autospawn if not already enabled
-  if grep autospawn=no "$PULSE_CLIENT_CONF"
+  if ! grep autospawn=no "$PULSE_CLIENT_CONF"
   then
     echo "Patching $PULSE_CLIENT_CONF ..."
     sudo bash -c "echo 'autospawn=no' >> $PULSE_CLIENT_CONF"
