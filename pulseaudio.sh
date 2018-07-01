@@ -21,6 +21,7 @@ NIGHTCALL_SINK_HOSTNAME=${NIGHTCALL_SINK_HOSTNAME:-zenzi.local}
 PULSE_DEFAULT_PA="/etc/pulse/default.pa"
 PULSE_UNIT_FILE="/etc/systemd/system/pulseaudio.service"
 PULSE_CLIENT_CONF="/etc/pulse/client.conf"
+APT_DEPENDENCIES="pulseaudio pulseaudio-module-zeroconf alsa-utils avahi-daemon espeak sox"
 # ============
 
 function ask_consent {
@@ -55,7 +56,7 @@ function patch_pulse_config {
   if [ ! -f "$PULSE_DEFAULT_PA" ]; then
     echo "Cannot find pulseaudio configuration."
     echo "Attempting to install pulseaudio, you may be asked for root privileges..."
-    sudo apt-get install pulseaudio pulseaudio-module-zeroconf alsa-utils avahi-daemon || bail "Installing pulseaudio failed."
+    sudo apt-get install $APT_DEPENDENCIES || bail "Installing pulseaudio failed."
 
     if [ ! -f "$PULSE_DEFAULT_PA" ]; then
       bail "Installed pulseaudio, still cannot find $PULSE_DEFAULT_PA configuration file."
