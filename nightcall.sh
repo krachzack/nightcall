@@ -86,13 +86,21 @@ function keep_streaming {
   cvlc $NIGHTCALL_SOURCE_URL > "$LOG" 2>&1 &
   PID=$!
 
-  while sleep 5
+  while sleep 3
   do
+      # If prints something about a pulse error, kill it
       if fgrep --quiet "$MATCH" "$LOG"
       then
           kill $PID
-          cvlc $NIGHTCALL_SOURCE_URL > "$LOG" 2>&1 &
-          PID=$!
+          PID=0
+      fi
+
+      # In any case, if it is dead now, restart it
+      # This also restarts vlc if the playlist is over
+      if ! ps -p $PID > /dev/null
+      then
+        cvlc $NIGHTCALL_SOURCE_URL > "$LOG" 2>&1 &
+        PID=$!
       fi
   done
 }
