@@ -65,7 +65,7 @@ function patch_pulse_config {
   echo "Patching $PULSE_DEFAULT_PA ..."
   uncomment $PULSE_DEFAULT_PA "module-native-protocol-tcp"
   uncomment $PULSE_DEFAULT_PA "module-zeroconf-publish"
-  sudo bash -c "echo 'resample-method = speex-float-3' >> $PULSE_DEFAULT_PA"
+  # sudo bash -c "echo 'resample-method = speex-float-3' >> $PULSE_DEFAULT_PA"
 
   # Disable autospawn if not already enabled
   if ! grep autospawn=no "$PULSE_CLIENT_CONF"
@@ -134,7 +134,7 @@ ExecStart=/usr/bin/pulseaudio -v --daemonize --disallow-exit --fail=1 --use-pid-
 
     # TODO ENV
     # sudo bash -c "echo 'PULSE_RUNTIME_PATH=/home/pi/.config/pulse/$MACHINE_ID-runtime' >> /etc/environment"
-    sudo bash -c "echo 'PULSE_COOKIE=/home/pi/.config/pulse/cookie' >> /etc/environment"
+    sudo bash -c "echo 'PULSE_COOKIE=\"/home/pi/.config/pulse/cookie\"' >> /etc/environment"
     # PULSE_COOKIE=/home/pi/.config/pulse/cookie
     # PULSE_SERVER=127.0.0.1
 

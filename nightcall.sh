@@ -66,7 +66,6 @@ function await_ping {
 }
 
 function await_streaming {
-  local PULSE_SERVER=$NIGHTCALL_SINK_HOSTNAME
   echo "Waiting streaming a static WAV file to $NIGHTCALL_SINK_HOSTNAME succeeds..."
   while cvlc $NIGHTCALL_READY_SOURCE_URL vlc://quit 2>&1 >/dev/null | grep -q 'PulseAudio server connection failure'
   do
@@ -74,6 +73,8 @@ function await_streaming {
     sleep 5
   done
 }
+
+PULSE_SERVER=$NIGHTCALL_SINK_HOSTNAME
 
 echo "Pumping up the volume..."
 pump_up_the_volume
@@ -87,4 +88,4 @@ ensure_vlc_installed && \
 # Play beep sound locally to signify that other end could be pinged
 # cvlc /home/pi/nightcall/beep.wav vlc://quit && \
 # Then play microphone remotely
-PULSE_SERVER=$NIGHTCALL_SINK_HOSTNAME cvlc $NIGHTCALL_SOURCE_URL
+cvlc $NIGHTCALL_SOURCE_URL
