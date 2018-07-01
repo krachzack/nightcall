@@ -86,7 +86,7 @@ function keep_streaming {
   cvlc $NIGHTCALL_SOURCE_URL > "$LOG" 2>&1 &
   PID=$!
 
-  while sleep 60
+  while sleep 5
   do
       if fgrep --quiet "$MATCH" "$LOG"
       then
