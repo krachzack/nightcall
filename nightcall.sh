@@ -74,6 +74,6 @@ while ! try_send_ready &>/dev/null; do echo "Reachable via ping, but streaming d
 echo "Sending microphone to $NIGHTCALL_SINK_HOSTNAME..."
 ensure_vlc_installed && \
 # Play beep sound locally to signify that other end could be pinged
-cvlc /home/pi/nightcall/beep.wav vlc://quit && \
+# cvlc /home/pi/nightcall/beep.wav vlc://quit && \
 # Then play microphone remotely
 PULSE_SERVER=$NIGHTCALL_SINK_HOSTNAME cvlc $NIGHTCALL_SOURCE_URL
