@@ -72,6 +72,7 @@ function patch_pulse_config {
     echo "Patching $PULSE_CLIENT_CONF ..."
     sudo bash -c "echo 'autospawn=no' >> $PULSE_CLIENT_CONF"
     sudo bash -c "echo 'auto-connect-localhost=yes' >> $PULSE_CLIENT_CONF"
+    # sudo bash -c "echo 'default-server=127.0.0.1' >> $PULSE_CLIENT_CONF"
   fi
 }
 
@@ -104,20 +105,31 @@ function ensure_pulseaudio_running {
     echo "No pulseaudio unit file found at $PULSE_UNIT_FILE, creating it..."
     echo "You may be asked to authenticate..."
 
+    MACHINE_ID=$(cat /etc/machine-id)
+
     sudo bash -c "cat <<< '
 [Unit]
 Description=PulseAudio Daemon
-Requires=networking.service avahi-daemon.service dbus.service
+Requires=networking.service avahi-daemon.service
 Wants=network-online.target
-After=networking.service network-online.target avahi-daemon.service ntp.service ssh.service dhcpcd.service bluetooth.service dbus.socket
+After=networking.service network-online.target ntp.service dhcpcd.service
 
 [Install]
 WantedBy=multi-user.target
 
 [Service]
 Type=forking
+PIDFile=/home/pi/.config/pulse/$MACHINE_ID-runtime/pid
+# Type=simple
+User=pi
 ExecStart=/usr/bin/pulseaudio -v --daemonize --disallow-exit --fail=1 --use-pid-file=1
     ' > $PULSE_UNIT_FILE"
+
+    # TODO ENV
+    # sudo bash -c "echo 'PULSE_RUNTIME_PATH=/home/pi/.config/pulse/$MACHINE_ID-runtime' >> /etc/environment"
+    sudo bash -c "echo 'PULSE_COOKIE=/home/pi/.config/pulse/cookie' >> /etc/environment"
+    # PULSE_COOKIE=/home/pi/.config/pulse/cookie
+    # PULSE_SERVER=127.0.0.1
 
     echo "Enabling pulseaudio at startup..."
     sudo systemctl daemon-reload
