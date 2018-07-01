@@ -91,14 +91,16 @@ function keep_streaming {
       # If prints something about a pulse error, kill it
       if fgrep --quiet "$MATCH" "$LOG"
       then
-          kill $PID
-          PID=0
+        echo "VLC reported error, killing it..."
+        kill $PID
+        PID=0
       fi
 
       # In any case, if it is dead now, restart it
       # This also restarts vlc if the playlist is over
       if ! ps -p $PID > /dev/null
       then
+        echo "Restarting VLC after exit..."
         cvlc $NIGHTCALL_SOURCE_URL > "$LOG" 2>&1 &
         PID=$!
       fi
