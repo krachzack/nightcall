@@ -82,6 +82,14 @@ function patch_pulse_config {
     fi
     # sudo bash -c "echo 'default-server=127.0.0.1' >> $PULSE_CLIENT_CONF"
   fi
+
+  if ! grep 'mkdir $XDG_RUNTIME_DIR/pulse' ~/.bashrc
+  then
+    echo "Patching .bashrc"
+    echo 'if [ ! -d \"$XDG_RUNTIME_DIR/pulse\" ]; then' >> ~/.bashrc
+    echo '    mkdir $XDG_RUNTIME_DIR/pulse && sudo mount --bind $(readlink /home/pi/.config/pulse/$(cat /etc/machine-id)-runtime) $XDG_RUNTIME_DIR/pulse' >> ~/.bashrc
+    echo 'fi' >> ~/.bashrc
+  fi
 }
 
 function pull_pulse_cookie {
