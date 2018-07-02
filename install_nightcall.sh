@@ -1,21 +1,7 @@
 NIGHTCALL_UNIT_FILE="/etc/systemd/system/nightcall.service"
 
 echo "Adding nightcall unit file, this may reuire authentication..."
-sudo bash -c "cat <<< '
-[Unit]
-Description=nightcall
-Requires=pulseaudio.service
-After=pulseaudio.service
-
-[Install]
-WantedBy=multi-user.target
-
-[Service]
-User=pi
-Type=simple
-PrivateTmp=true
-ExecStart=/home/pi/nightcall/nightcall.sh
-' > $NIGHTCALL_UNIT_FILE"
+sudo mv nightcall.service $NIGHTCALL_UNIT_FILE
 
 echo "Enabling nightcall at startup, this may require authentication..."
 sudo systemctl daemon-reload

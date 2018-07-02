@@ -1,0 +1,14 @@
+[Unit]
+Description=nightcall
+Requires=pulseaudio.service
+After=pulseaudio.service
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+User=pi
+Type=simple
+PrivateTmp=true
+EnvironmentFile=/etc/environment
+ExecStart=/bin/sh -c "exec env XDG_RUNTIME_DIR=%t/user/$(id -u pi) /home/pi/nightcall/nightcall.sh"

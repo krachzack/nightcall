@@ -1,0 +1,17 @@
+[Unit]
+Description=PulseAudio Daemon
+Requires=networking.service avahi-daemon.service
+Wants=network-online.target
+After=networking.service network-online.target ntp.service dhcpcd.service
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+# If changing the user, change the uid below (1000)
+# Sadly, variable substitution is not allowed in pidfile
+User=pi
+Type=forking
+PIDFile=%t/user/1000/pulse/pid
+# Run under /run/user/1000 to trick pacmd into thinking this is a session daemon and connect with it
+ExecStart=/bin/sh -c "env XDG_RUNTIME_DIR=%t/user/1000 /usr/bin/pulseaudio -v --daemonize --disallow-exit --fail=1 --use-pid-file=1"
