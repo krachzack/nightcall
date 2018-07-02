@@ -11,6 +11,11 @@ WantedBy=multi-user.target
 # If changing the user, change the uid below (1000)
 # Sadly, variable substitution is not allowed in pidfile
 User=pi
+# Run the mount with root instead of pi user
+PermissionsStartOnly=true
 Type=forking
 PIDFile=/home/pi/.config/pulse/%m-runtime/pid
 ExecStart=/usr/bin/pulseaudio -v --daemonize --disallow-exit --fail=1 --use-pid-file=1
+# Be sure 1000 is the same as the UID of pi
+# This makes pacmd and pulseaudio --check find the pid and do their job
+ExecStartPost=/bin/sh -c "mkdir -p /run/user/1000/pulse && chown pi /run/user/1000 && chown pi /run/user/1000/pulse && chmod 0700 /run/user/1000 && chmod 0700 /run/user/1000/pulse && mount --bind $(readlink /home/pi/.config/pulse/%m-runtime) /run/user/1000/pulse"
