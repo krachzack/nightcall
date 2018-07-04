@@ -11,4 +11,6 @@ User=pi
 Type=simple
 PrivateTmp=true
 EnvironmentFile=/etc/environment
-ExecStart=/bin/sh -c "exec env XDG_RUNTIME_DIR=%t/user/$(id -u pi) /home/pi/nightcall/nightcall.sh"
+ExecStart=/bin/sh -c "pacat -r --rate=22050 --server=$NIGHTCALL_SINK_HOSTNAME --latency-msec=400 --process-time-ms=100 --volume=65536 | pacat -p --rate=22050 --latency-msec=400 --process-time-ms=100 --volume=65536"
+Restart=on-failure
+RestartSec=1
