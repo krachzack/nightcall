@@ -11,6 +11,6 @@ User=pi
 Type=simple
 PrivateTmp=true
 EnvironmentFile=/etc/environment
-ExecStart=/bin/sh -c "pacat -r --rate=22050 --server=$NIGHTCALL_SINK_HOSTNAME --latency-msec=400 --process-time-ms=100 --volume=65536 | pacat -p --rate=22050 --latency-msec=400 --process-time-ms=100 --volume=65536"
-Restart=on-failure
+ExecStart=/home/pi/nightcall/nightcall.sh
+Restart=always
 RestartSec=1

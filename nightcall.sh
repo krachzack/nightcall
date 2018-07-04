@@ -20,8 +20,6 @@ NIGHTCALL_READY_SOURCE_URL=${NIGHTCALL_READY_SOURCE_URL:-/home/pi/nightcall/beep
 NIGHTCALL_SINK_HOSTNAME=${NIGHTCALL_SINK_HOSTNAME:-zenzi.local}
 # ============
 
-pulseaudio --check || bail "Pulseaudio daemon is not reachable, exiting nightcall..."
-
 function ask_consent {
   QUESTION=${1:-Dangerous stuff ahead. Continue anyway?}
   read -p "$QUESTION [Y/n]" -r
@@ -78,10 +76,10 @@ function await_streaming {
 
 # Streams $NIGHTCALL_SOURCE_URL and restarts if error seen or vlc exits
 function keep_streaming {
-  LOG="/tmp/nightcall-vlc-microphone-stream.log"
-  MATCH="pulse audio output error"
+  LOG="/tmp/nightcall-pacat-microphone-stream.log"
+  MATCH="error"
 
-  cvlc $NIGHTCALL_SOURCE_URL vlc://quit > "$LOG" 2>&1 &
+  pacat -r --rate=8000 --server=$NIGHTCALL_SINK_HOSTNAME --volume=65536 --latency-msec=500 | pacat -p --rate=8000 --volume=65536 > "$LOG" 2>&1 &
   PID=$!
 
   while sleep 3
@@ -89,16 +87,16 @@ function keep_streaming {
       # If prints something about a pulse error, kill it
       if fgrep --quiet "$MATCH" "$LOG"
       then
-        echo "VLC reported error, killing it..."
+        echo "pacat reported error, killing it..."
         kill $PID
         PID=0
       fi
 
       # In any case, if it is dead now, restart it
-      # This also restarts vlc if the playlist is over
+      # This also restarts pacat if the playlist is over
       if ! ps -p $PID > /dev/null
       then
-        echo "Restarting script after VLC exit..."
+        echo "Restarting script after pacat exit..."
         exec /home/pi/nightcall/nightcall.sh
       fi
   done
