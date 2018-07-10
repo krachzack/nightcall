@@ -79,7 +79,7 @@ function keep_streaming {
   LOG="/tmp/nightcall-pacat-microphone-stream.log"
   MATCH="error"
 
-  pacat -r --rate=8000 --server=$NIGHTCALL_SINK_HOSTNAME --volume=65536 --latency-msec=200 --process-time-msec=200 | pacat -p --rate=8000 --volume=65536 --latency-msec=200 --process-time-msec=200 --server=127.0.0.1 --device=remotephone > "$LOG" 2>&1 &
+  pacat -r --rate=8000 --server=$NIGHTCALL_SINK_HOSTNAME --volume=65536 --latency-msec=200 --process-time-msec=200 | pacat -p --rate=8000 --volume=65536 --latency-msec=200 --process-time-msec=200 --server=127.0.0.1 > "$LOG" 2>&1 &
   PID=$!
 
   while sleep 3
