@@ -79,7 +79,7 @@ function keep_streaming {
   LOG="/tmp/nightcall-pacat-microphone-stream.log"
   MATCH="error"
 
-  pacat -r --rate=8000 --server=$NIGHTCALL_SINK_HOSTNAME --volume=65536 --latency-msec=500 | pacat -p --rate=8000 --volume=65536 > "$LOG" 2>&1 &
+  pacat -r --rate=8000 --server=$NIGHTCALL_SINK_HOSTNAME --volume=65536 --latency-msec=100 --process-time-msec=100 | pacat -p --rate=8000 --volume=65536 --latency-msec=100 --process-time-msec=100 > "$LOG" 2>&1 &
   PID=$!
 
   while sleep 3
@@ -97,6 +97,7 @@ function keep_streaming {
       if ! ps -p $PID > /dev/null
       then
         echo "Restarting script after pacat exit..."
+        sleep 5
         exec /home/pi/nightcall/nightcall.sh
       fi
   done
@@ -109,10 +110,11 @@ pump_up_the_volume
 
 await_mdns
 await_ping
-await_streaming
+# await_streaming
 
 echo "Sending $NIGHTCALL_SOURCE_URL to $NIGHTCALL_SINK_HOSTNAME..."
 ensure_vlc_installed && \
+await_streaming && \
 keep_streaming
 # Play beep sound locally to signify that other end could be pinged
 # cvlc /home/pi/nightcall/beep.wav vlc://quit && \
