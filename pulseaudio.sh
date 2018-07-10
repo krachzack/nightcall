@@ -69,11 +69,11 @@ function patch_pulse_config {
   # sudo bash -c "echo 'resample-method = speex-float-3' >> $PULSE_DEFAULT_PA"
 
   # Add sink for remote stream so it can be muted
-  #if ! grep sink_name=remotephone "$PULSE_DEFAULT_PA"
-  #then
-#    sudo bash -c "echo 'load-module module-null-sink sink_name=remotephone sink_properties=device.description=\"Remote_Phone\"' >> $PULSE_DEFAULT_PA"
-#    sudo bash -c "echo 'load-module module-loopback source=remotephone.monitor sink=alsa_output.usb-C-Media_Electronics_Inc._USB_Audio_Device-00.analog-stereo latency_msec=50' >> $PULSE_DEFAULT_PA"
-#  fi
+  if ! grep sink_name=nirvana "$PULSE_DEFAULT_PA"
+  then
+    sudo bash -c "echo 'load-module module-null-sink sink_name=nirvana sink_properties=device.description=\"Nirvana\"' >> $PULSE_DEFAULT_PA"
+    #sudo bash -c "echo 'load-module module-loopback source=remotephone.monitor sink=alsa_output.usb-C-Media_Electronics_Inc._USB_Audio_Device-00.analog-stereo latency_msec=50' >> $PULSE_DEFAULT_PA"
+  fi
 
   # Disable autospawn if not already disabled
   if ! grep autospawn=no "$PULSE_CLIENT_CONF"
