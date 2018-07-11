@@ -4,6 +4,7 @@ import subprocess
 import atexit
 import hardphone
 import time
+import hardphone
 
 class PhoneCtl:
     state_mute = 'mute'
@@ -14,7 +15,7 @@ class PhoneCtl:
     def __init__(self):
         self.state = PhoneCtl.state_mute
         self.process = None
-        self.phone = HardPhone()
+        self.phone = hardphone.HardPhone()
         atexit.register(self.mute)
 
     def run(self):
