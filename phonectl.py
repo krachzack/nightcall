@@ -20,6 +20,7 @@ class PhoneCtl:
     udp_msg_hung_up = 'hung_up'
     lights_toggle_on_time = 0.5
     lights_toggle_off_time = 0.3
+    ring_max_time = 10.0
 
     def __init__(self):
         self.state = PhoneCtl.state_mute
@@ -35,6 +36,7 @@ class PhoneCtl:
         atexit.register(self.mute)
         self.last_me_ready = False
         self.light_toggle_timeout = None
+        self.ring_stop_time = None
 
     def run(self):
         while True:
@@ -49,6 +51,11 @@ class PhoneCtl:
         self.update_lights()
 
     def update_lights(self):
+        if self.ring_stop_time is not None and time.time() > self.ring_stop_time:
+            self.phone.unring()
+            self.lights.on()
+            return
+
         if self.light_toggle_timeout is None:
             self.lights.on()
         else:
@@ -57,9 +64,11 @@ class PhoneCtl:
                 if self.lights.is_on():
                     self.light_toggle_timeout = PhoneCtl.lights_toggle_off_time
                     self.lights.off()
+                    self.phone.unring()
                 else:
                     self.light_toggle_timeout = PhoneCtl.lights_toggle_on_time
                     self.lights.on()
+                    self.phone.ring()
 
     def recv_remote_phone_state(self):
         try:
@@ -120,9 +129,11 @@ class PhoneCtl:
                 self.phone.ring()
                 self.lights.off()
                 self.light_toggle_timeout = PhoneCtl.lights_toggle_off_time
+                self.ring_stop_time = time.time() + PhoneCtl.ring_max_time
             else:
                 self.phone.unring()
                 self.light_toggle_timeout = None
+                self.ring_stop_time = None
 
             # And set to the new state
             self.state = new_state
