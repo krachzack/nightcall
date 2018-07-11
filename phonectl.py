@@ -73,7 +73,8 @@ class PhoneCtl:
         if new_state != self.state:
             # Terminate what was playing before
             if self.process is not None:
-                self.process.terminate()
+                self.process.kill()
+                self.process = None
 
             # Start playing, if anything
             if command is not None:
