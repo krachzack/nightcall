@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import smbus
 import atexit
 
@@ -15,6 +13,9 @@ class HardPhone:
         self.picked_up = False
         self.last_typed = -1
         atexit.register(self.unring)
+
+    def is_picked_up(self):
+        return self.picked_up
 
     def ring(self):
         self.bus.write_byte(self.address, HardPhone.byte_request_ring)
