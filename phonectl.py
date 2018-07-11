@@ -133,6 +133,7 @@ class PhoneCtl:
             if self.process is not None:
                 self.process.send_signal(signal.SIGINT)
                 self.process.terminate()
+                self.process.kill()
                 self.process = None
 
             # Start playing, if anything
@@ -160,7 +161,7 @@ class PhoneCtl:
         forever_cmd = [
             '/bin/bash',
             '-c',
-            'while true; do ' + cmd + ' || exit 1; sleep 0.5s; done'
+            cmd
         ]
         return subprocess.Popen(forever_cmd)
 
@@ -168,7 +169,7 @@ class PhoneCtl:
         self.change_state(PhoneCtl.state_mute, None)
 
     def beep(self):
-        self.change_state(PhoneCtl.state_beep, 'paplay ~/nightcall/beep.wav  --volume=65536 --latency-msec=200 --process-time-msec=200 --client-name=phonering --stream-name=phonering --server=127.0.0.1')
+        self.change_state(PhoneCtl.state_beep, 'while true; do paplay ~/nightcall/beep.wav  --volume=65536 --latency-msec=200 --process-time-msec=200 --client-name=phonering --stream-name=phonering --server=127.0.0.1; sleep 0.5s; done')
 
     def ring(self):
         self.change_state(PhoneCtl.state_ring, None)
