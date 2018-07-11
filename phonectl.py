@@ -43,7 +43,7 @@ class PhoneCtl:
             self.mute()
 
     def recv_remote_phone_state(self):
-        data, addr = self.sock.recv_from(64)
+        data, addr = self.sock.recvfrom(64)
         if data == PhoneCtl.udp_msg_picked_up:
             if self.remote_picked_up == False:
                 print("Remote picked up")
