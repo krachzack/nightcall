@@ -22,12 +22,14 @@ class HardPhone:
         return self.ringing
 
     def ring(self):
-        self.bus.write_byte(self.address, HardPhone.byte_request_ring)
-        self.ringing = True
+        if not self.ringing:
+            self.bus.write_byte(self.address, HardPhone.byte_request_ring)
+            self.ringing = True
 
     def unring(self):
-        self.bus.write_byte(self.address, HardPhone.byte_request_unring)
-        self.ringing = False
+        if self.ringing:
+            self.bus.write_byte(self.address, HardPhone.byte_request_unring)
+            self.ringing = False
 
     def type(self, number):
         self.last_typed = number
