@@ -17,3 +17,7 @@ class HardPhone:
 
     def unring(self):
         self.bus.write_byte(self.address, HardPhone.byte_unring)
+
+    def read(self):
+        msg = self.bus.read_byte(self.address)
+        print('Phone said %d.' % (msg))
