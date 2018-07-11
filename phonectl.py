@@ -163,7 +163,7 @@ class PhoneCtl:
             '-c',
             cmd
         ]
-        return subprocess.Popen(forever_cmd)
+        return subprocess.Popen(forever_cmd, shell=True)
 
     def mute(self):
         self.change_state(PhoneCtl.state_mute, None)
