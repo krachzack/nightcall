@@ -30,6 +30,7 @@ class PhoneCtl:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.setblocking(False)
         self.sock.bind((os.environ['NIGHTCALL_LISTEN_IP'], PhoneCtl.udp_port))
+        atexit(self.sock.close)
         self.remote_picked_up = False
         atexit.register(self.mute)
         self.last_me_ready = False
@@ -64,7 +65,7 @@ class PhoneCtl:
         try:
             data, addr = self.sock.recvfrom(64)
             data = data.decode()
-            print("Received %s from %s" % (data, addr))
+            print("UDP data: %s" % (data))
             if data == PhoneCtl.udp_msg_picked_up:
                 if self.remote_picked_up == False:
                     print("Remote picked up")
