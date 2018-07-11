@@ -131,10 +131,7 @@ class PhoneCtl:
         if new_state != self.state:
             # Terminate what was playing before
             if self.process is not None:
-                self.process.send_signal(signal.SIGINT)
-                self.process.send_signal(signal.SIGABRT)
-                self.process.terminate()
-                self.process.kill()
+                os.killpg(os.getpgid(self.process.pid), signal.SIGTERM)
                 self.process = None
 
             # Start playing, if anything
@@ -159,7 +156,7 @@ class PhoneCtl:
 
     # Runs a process forever (Until killed)
     def spawn_forever(self, cmd):
-        return subprocess.Popen(cmd, shell=True)
+        return subprocess.Popen(cmd, shell=True, preexec_fn=os.setsid)
 
     def mute(self):
         self.change_state(PhoneCtl.state_mute, None)
