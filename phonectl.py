@@ -132,6 +132,7 @@ class PhoneCtl:
             # Terminate what was playing before
             if self.process is not None:
                 self.process.send_signal(signal.SIGINT)
+                self.process.send_signal(signal.SIGABRT)
                 self.process.terminate()
                 self.process.kill()
                 self.process = None
