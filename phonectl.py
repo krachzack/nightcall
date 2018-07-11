@@ -29,7 +29,7 @@ class PhoneCtl:
         self.udp_endpoint = (os.environ['NIGHTCALL_SINK_HOSTNAME'], PhoneCtl.udp_port)
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.setblocking(False)
-        self.sock.bind(('0.0.0.0', PhoneCtl.udp_port))
+        self.sock.bind((os.environ['NIGHTCALL_LISTEN_IP'], PhoneCtl.udp_port))
         self.remote_picked_up = False
         atexit.register(self.mute)
         self.last_me_ready = False
@@ -141,7 +141,7 @@ class PhoneCtl:
         self.change_state(PhoneCtl.state_beep, 'paplay ~/nightcall/beep.wav  --volume=65536 --latency-msec=200 --process-time-msec=200 --client-name=phonering --stream-name=phonering --server=127.0.0.1')
 
     def ring(self):
-        self.change_state(PhoneCtl.state_ring, 'paplay ~/nightcall/beep.wav  --volume=65536 --latency-msec=200 --process-time-msec=200 --client-name=phonering --stream-name=phonering --server=127.0.0.1')
+        self.change_state(PhoneCtl.state_ring, None)
 
     def listen(self):
         self.change_state(PhoneCtl.state_listen, 'pacat -r --rate=8000 --server=$NIGHTCALL_SINK_HOSTNAME --volume=65536 --latency-msec=200 --process-time-msec=200 | pacat -p --rate=8000 --volume=65536 --latency-msec=200 --process-time-msec=200 --client-name=phonelisten --stream-name=phonelisten --server=127.0.0.1')
