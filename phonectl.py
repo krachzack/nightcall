@@ -30,7 +30,7 @@ class PhoneCtl:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.setblocking(False)
         self.sock.bind((os.environ['NIGHTCALL_LISTEN_IP'], PhoneCtl.udp_port))
-        atexit(self.sock.close)
+        atexit.register(self.sock.close)
         self.remote_picked_up = False
         atexit.register(self.mute)
         self.last_me_ready = False
