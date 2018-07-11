@@ -62,10 +62,8 @@ class PhoneCtl:
 
     def recv_remote_phone_state(self):
         try:
-            print("Receiving")
             data, addr = self.sock.recvfrom(64)
             data = data.decode()
-            print("Receiving")
             if data == PhoneCtl.udp_msg_picked_up:
                 if self.remote_picked_up == False:
                     print("Remote picked up")
@@ -77,7 +75,7 @@ class PhoneCtl:
             else:
                 print("Unknown message received over UDP %s from %s" % (data, addr))
         except OSError as msg:
-            return
+            print("UDP error: %s", msg)
 
     def send_local_phone_state_to_remote(self):
         if self.phone.is_picked_up():
