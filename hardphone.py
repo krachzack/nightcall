@@ -11,17 +11,23 @@ class HardPhone:
         self.address = 4
         self.bus = smbus.SMBus(1)
         self.picked_up = False
+        self.ringing = False
         self.last_typed = -1
         atexit.register(self.unring)
 
     def is_picked_up(self):
         return self.picked_up
 
+    def is_ringing(self):
+        return self.ringing
+
     def ring(self):
         self.bus.write_byte(self.address, HardPhone.byte_request_ring)
+        self.ringing = True
 
     def unring(self):
         self.bus.write_byte(self.address, HardPhone.byte_request_unring)
+        self.ringing = False
 
     def type(self, number):
         self.last_typed = number
