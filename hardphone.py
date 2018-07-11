@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import smbus
+import atexit
 
 class HardPhone:
     byte_unring = 0
@@ -9,6 +10,7 @@ class HardPhone:
     def __init__(self):
         self.address = 4
         self.bus = smbus.SMBus(1)
+        atexit.register(self.unring)
 
     def ring(self):
         self.bus.write_byte(self.address, HardPhone.byte_ring)
