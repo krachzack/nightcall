@@ -4,7 +4,7 @@ import smbus
 
 class HardPhone:
     byte_unring = 0
-    byte_ring = 0
+    byte_ring = 1
 
     def __init__(self):
         self.address = 4
