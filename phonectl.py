@@ -158,12 +158,7 @@ class PhoneCtl:
 
     # Runs a process forever (Until killed)
     def spawn_forever(self, cmd):
-        forever_cmd = [
-            '/bin/bash',
-            '-c',
-            cmd
-        ]
-        return subprocess.Popen(forever_cmd, shell=True)
+        return subprocess.Popen(cmd, shell=True)
 
     def mute(self):
         self.change_state(PhoneCtl.state_mute, None)
