@@ -160,7 +160,7 @@ class PhoneCtl:
         forever_cmd = [
             '/bin/bash',
             '-c',
-            'while true; do ' + cmd + '; sleep 0.5s; done'
+            'while true; do ' + cmd + ' || exit 1; sleep 0.5s; done'
         ]
         return subprocess.Popen(forever_cmd)
 
