@@ -8,6 +8,7 @@ import hardphone
 import lights
 import socket
 import os
+import signal
 
 class PhoneCtl:
     cycle_secs = 0.1
@@ -130,8 +131,8 @@ class PhoneCtl:
         if new_state != self.state:
             # Terminate what was playing before
             if self.process is not None:
+                self.process.send_signal(signal.CTRL_C_EVENT)
                 self.process.terminate()
-                self.process.kill()
                 self.process = None
 
             # Start playing, if anything
