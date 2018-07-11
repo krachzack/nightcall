@@ -120,12 +120,7 @@ class PhoneCtl:
         elif me_ready and not you_ready:
             self.beep()
         elif you_ready and not me_ready:
-            # Freeze the phone for one second if I just hung up but the remote
-            # is still for a phone.
-            if self.last_me_ready:
-                sleep(1)
-            else:
-                self.ring()
+            self.ring()
         else:
             self.mute()
 
