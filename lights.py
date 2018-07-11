@@ -1,5 +1,7 @@
+#!/usr/bin/env python3
 
 import RPi.GPIO as GPIO
+import time
 
 class Lights:
     light_pin = 17
@@ -7,7 +9,7 @@ class Lights:
     def __init__(self):
         self.enabled = False
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(Lights.light_pin, GPIO.OUT, initial=GPIO.HIGH)
+        GPIO.setup(Lights.light_pin, GPIO.OUT, initial=GPIO.LOW)
 
     def set_enabled(self, val):
         self.enabled = val is True
@@ -24,3 +26,11 @@ class Lights:
 
     def flush(self):
         GPIO.output(Lights.light_pin, self.enabled)
+
+if __name__ == '__main__':
+    lights = Lights()
+    while True:
+        lights.on()
+        time.sleep(0.5)
+        lights.off()
+        time.sleep(0.3)
