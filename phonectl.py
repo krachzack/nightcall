@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import subprocess
+import atexit
 
 class PhoneCtl:
     state_mute = 'mute'
@@ -10,6 +11,7 @@ class PhoneCtl:
     def __init__(self):
         self.state = PhoneCtl.state_mute
         self.process = None
+        atexit.register(self.mute)
 
     def update_state(self, new_state, command):
         if new_state != self.state:
@@ -37,7 +39,7 @@ class PhoneCtl:
         self.update_state(PhoneCtl.state_mute, None)
 
     def ring(self):
-        self.update_state(PhoneCtl.state_ring, 'paplay ~/nightcall/beep.wav  --volume=65536 --latency-msec=200 --process-time-msec=200 --client-name=phonering --stream-name=phonering --server=127.0.0.1')
+        self.update_state(PhoneCtl.state_ring, 'say ring')
 
     def listen(self):
         self.update_state(PhoneCtl.state_listen, 'pacat -r --rate=8000 --server=$NIGHTCALL_SINK_HOSTNAME --volume=65536 --latency-msec=200 --process-time-msec=200 | pacat -p --rate=8000 --volume=65536 --latency-msec=200 --process-time-msec=200 --client-name=phonelisten --stream-name=phonelisten --server=127.0.0.1')
