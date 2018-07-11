@@ -23,6 +23,7 @@ class PhoneCtl:
         self.phone = hardphone.HardPhone()
         self.udp_endpoint = (os.environ['NIGHTCALL_SINK_HOSTNAME'], PhoneCtl.udp_port)
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.sock.setblocking(False)
         self.sock.bind(('0.0.0.0', PhoneCtl.udp_port))
         self.remote_picked_up = False
         atexit.register(self.mute)
