@@ -44,6 +44,7 @@ class PhoneCtl:
     def recv_remote_phone_state(self):
         try:
             data, addr = self.sock.recvfrom(64)
+            data = data.decode()
             if data == PhoneCtl.udp_msg_picked_up:
                 if self.remote_picked_up == False:
                     print("Remote picked up")
@@ -59,9 +60,9 @@ class PhoneCtl:
 
     def send_local_phone_state_to_remote(self):
         if self.phone.is_picked_up():
-            self.sock.sendto(PhoneCtl.udp_msg_picked_up, self.udp_endpoint)
+            self.sock.sendto(PhoneCtl.udp_msg_picked_up.encode(), self.udp_endpoint)
         else:
-            self.sock.sendto(PhoneCtl.udp_msg_hung_up, self.udp_endpoint)
+            self.sock.sendto(PhoneCtl.udp_msg_hung_up.encode(), self.udp_endpoint)
 
     def update_state(self):
         me_ready = self.phone.is_picked_up()
