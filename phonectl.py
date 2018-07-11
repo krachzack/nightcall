@@ -38,6 +38,7 @@ class PhoneCtl:
         self.phone.read()
         self.send_local_phone_state_to_remote()
         self.update_state()
+        print("State: %s" % (self.state))
 
     def recv_remote_phone_state(self):
         data, addr = self.sock.recvfrom(64)
