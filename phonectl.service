@@ -1,5 +1,5 @@
 [Unit]
-Description=nightcall
+Description=phonectl
 Requires=pulseaudio.service
 After=pulseaudio.service
 
@@ -11,6 +11,6 @@ User=pi
 Type=simple
 PrivateTmp=true
 EnvironmentFile=/etc/environment
-ExecStart=/home/pi/nightcall/nightcall.sh
+ExecStart=/home/pi/nightcall/phonectl.py
 Restart=always
-RestartSec=1
+RestartSec=10
