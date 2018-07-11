@@ -46,7 +46,6 @@ class PhoneCtl:
         self.send_local_phone_state_to_remote()
         self.update_state()
         self.update_lights()
-        print("State: %s" % (self.state))
 
     def update_lights(self):
         if self.light_toggle_timeout is None:
