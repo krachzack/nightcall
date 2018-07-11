@@ -31,10 +31,8 @@ class HardPhone:
         msg = self.bus.read_byte(self.address)
         if msg == HardPhone.byte_response_hangup:
             self.picked_up = False
-            print("Hung up")
         elif msg == HardPhone.byte_response_pickup:
             self.picked_up = True
-            print("Picked up")
         elif msg >= 0 and msg <= 9:
             self.type(msg)
         else:

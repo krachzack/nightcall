@@ -5,17 +5,26 @@ import atexit
 import hardphone
 import time
 import hardphone
+import socket
+import os
 
 class PhoneCtl:
     state_mute = 'mute'
     state_ring = 'ring'
     state_listen = 'listen'
     state_beep = 'beep'
+    udp_port = 18242
+    udp_msg_picked_up = 'picked_up'
+    udp_msg_hung_up = 'hung_up'
 
     def __init__(self):
         self.state = PhoneCtl.state_mute
         self.process = None
         self.phone = hardphone.HardPhone()
+        self.udp_endpoint = (os.environ['NIGHTCALL_SINK_HOSTNAME'], PhoneCtl.udp_port)
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.sock.bind(('0.0.0.0', PhoneCtl.udp_port))
+        self.remote_picked_up = False
         atexit.register(self.mute)
 
     def run(self):
@@ -24,11 +33,28 @@ class PhoneCtl:
             time.sleep(0.1)
 
     def update(self):
+        self.recv_remote_phone_state()
         self.phone.read()
         if self.phone.is_picked_up():
+            self.sock.sendto(PhoneCtl.udp_msg_picked_up, self.udp_endpoint)
             self.beep()
         else:
+            self.sock.sendto(PhoneCtl.udp_msg_hung_up, self.udp_endpoint)
             self.mute()
+
+    def recv_remote_phone_state(self):
+        data, addr = self.sock.recv_from(64)
+        if data == PhoneCtl.udp_msg_picked_up:
+            if self.remote_picked_up == False:
+                print("Remote picked up")
+            self.remote_picked_up = True
+        elif data == PhoneCtl.udp_msg_hung_up:
+            if self.remote_picked_up == True:
+                print("Remote hung up")
+            self.remote_picked_up = False
+        else:
+            print("Unknown message received over UDP %s from %s" % (data, addr))
+
 
     def change_state(self, new_state, command):
         if new_state != self.state:
