@@ -5,10 +5,12 @@ import atexit
 import hardphone
 import time
 import hardphone
+import lights
 import socket
 import os
 
 class PhoneCtl:
+    cycle_secs = 0.1
     state_mute = 'mute'
     state_ring = 'ring'
     state_listen = 'listen'
@@ -16,10 +18,13 @@ class PhoneCtl:
     udp_port = 18242
     udp_msg_picked_up = 'picked_up'
     udp_msg_hung_up = 'hung_up'
+    lights_toggle_on_time = 0.5
+    lights_toggle_off_time = 0.3
 
     def __init__(self):
         self.state = PhoneCtl.state_mute
         self.process = None
+        self.lights = lights.Lights()
         self.phone = hardphone.HardPhone()
         self.udp_endpoint = (os.environ['NIGHTCALL_SINK_HOSTNAME'], PhoneCtl.udp_port)
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -28,18 +33,33 @@ class PhoneCtl:
         self.remote_picked_up = False
         atexit.register(self.mute)
         self.last_me_ready = False
+        self.light_toggle_timeout = None
 
     def run(self):
         while True:
             self.update()
-            time.sleep(0.1)
+            time.sleep(PhoneCtl.cycle_secs)
 
     def update(self):
         self.recv_remote_phone_state()
         self.phone.read()
         self.send_local_phone_state_to_remote()
         self.update_state()
+        self.update_lights()
         print("State: %s" % (self.state))
+
+    def update_lights(self):
+        if self.light_toggle_timeout is None:
+            self.lights.on()
+        else:
+            self.light_toggle_timeout = self.light_toggle_timeout - PhoneCtl.cycle_secs
+            if self.light_toggle_timeout < 0:
+                if self.lights.is_on():
+                    self.light_toggle_timeout = PhoneCtl.lights_toggle_off_time
+                    self.lights.off()
+                else:
+                    self.light_toggle_timeout = PhoneCtl.lights_toggle_on_time
+                    self.lights.on()
 
     def recv_remote_phone_state(self):
         try:
@@ -97,8 +117,11 @@ class PhoneCtl:
             # And tell phone whether to ring
             if new_state == PhoneCtl.state_ring:
                 self.phone.ring()
+                self.lights.off()
+                self.light_toggle_timeout = PhoneCtl.lights_toggle_off_time
             else:
                 self.phone.unring()
+                self.light_toggle_timeout = None
 
             # And set to the new state
             self.state = new_state

@@ -11,6 +11,9 @@ class Lights:
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(Lights.light_pin, GPIO.OUT, initial=GPIO.LOW)
 
+    def is_on(self):
+        return self.enabled
+
     def set_enabled(self, val):
         self.enabled = val is True
         self.flush()
