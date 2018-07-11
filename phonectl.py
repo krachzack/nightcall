@@ -26,6 +26,7 @@ class PhoneCtl:
         self.sock.bind(('0.0.0.0', PhoneCtl.udp_port))
         self.remote_picked_up = False
         atexit.register(self.mute)
+        self.last_me_ready = False
 
     def run(self):
         while True:
@@ -65,9 +66,16 @@ class PhoneCtl:
         elif me_ready and not you_ready:
             self.beep()
         elif you_ready and not me_ready:
-            self.ring()
+            # Freeze the phone for one second if I just hung up but the remote
+            # is still for a phone.
+            if self.last_me_ready:
+                sleep(1)
+            else:
+                self.ring()
         else:
             self.mute()
+
+        self.last_me_ready = me_ready
 
     def change_state(self, new_state, command):
         if new_state != self.state:
