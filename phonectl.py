@@ -35,12 +35,8 @@ class PhoneCtl:
     def update(self):
         self.recv_remote_phone_state()
         self.phone.read()
-        if self.phone.is_picked_up():
-            self.sock.sendto(PhoneCtl.udp_msg_picked_up, self.udp_endpoint)
-            self.beep()
-        else:
-            self.sock.sendto(PhoneCtl.udp_msg_hung_up, self.udp_endpoint)
-            self.mute()
+        self.send_local_phone_state_to_remote()
+        self.update_state()
 
     def recv_remote_phone_state(self):
         data, addr = self.sock.recvfrom(64)
@@ -55,6 +51,23 @@ class PhoneCtl:
         else:
             print("Unknown message received over UDP %s from %s" % (data, addr))
 
+    def send_local_phone_state_to_remote(self):
+        if self.phone.is_picked_up():
+            self.sock.sendto(PhoneCtl.udp_msg_picked_up, self.udp_endpoint)
+        else:
+            self.sock.sendto(PhoneCtl.udp_msg_hung_up, self.udp_endpoint)
+
+    def update_state(self):
+        me_ready = self.phone.is_picked_up()
+        you_ready = self.remote_picked_up
+        if me_ready and you_ready:
+            self.listen()
+        elif me_ready and not you_ready:
+            self.beep()
+        elif you_ready and not me_ready:
+            self.ring()
+        else:
+            self.mute()
 
     def change_state(self, new_state, command):
         if new_state != self.state:
@@ -65,6 +78,12 @@ class PhoneCtl:
             # Start playing, if anything
             if command is not None:
                 self.process = self.spawn_forever(command)
+
+            # And tell phone whether to ring
+            if new_state == PhoneCtl.state_ring:
+                self.phone.ring()
+            else:
+                self.phone.unring()
 
             # And set to the new state
             self.state = new_state
