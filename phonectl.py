@@ -24,6 +24,8 @@ class PhoneCtl:
     ring_toggle_on_time = 1.0
     ring_toggle_off_time = 0.3
     ring_max_time = 60.0
+    """ When hanging up on an open call and the other end does not, do not ring again for the next three seconds """
+    ring_hangup_disable_time = 3.0
 
     def __init__(self):
         self.state = PhoneCtl.state_mute
@@ -41,11 +43,16 @@ class PhoneCtl:
         self.light_toggle_timeout = None
         self.ring_stop_time = None
         self.ring_toggle_timeout = None
+        self.ring_disabled_time = None
 
     def run(self):
         while True:
+            time_cycle_start = time.time()
             self.update()
-            time.sleep(PhoneCtl.cycle_secs)
+            time_cycle_end = time.time()
+            sync_time = PhoneCtl.cycle_secs - (time_cycle_end - time_cycle_start)
+            if sync_time > 0:
+                time.sleep(sync_time)
 
     def update(self):
         self.recv_remote_phone_state()
@@ -73,7 +80,7 @@ class PhoneCtl:
                     self.lights.on()
 
     def update_ring(self):
-        if self.ring_stop_time is not None and time.time() > self.ring_stop_time:
+        if self.ring_disabled_time is not None and (time.time() - self.ring_disabled_time) < PhoneCtl.ring_hangup_disable_time or self.ring_stop_time is not None and time.time() > self.ring_stop_time:
             self.phone.unring()
             return
 
@@ -128,7 +135,8 @@ class PhoneCtl:
         self.last_me_ready = me_ready
 
     def change_state(self, new_state, command):
-        if new_state != self.state:
+        old_state = self.state
+        if new_state != old_state:
             # Terminate what was playing before
             if self.process is not None:
                 os.killpg(os.getpgid(self.process.pid), signal.SIGTERM)
@@ -145,6 +153,8 @@ class PhoneCtl:
                 self.light_toggle_timeout = PhoneCtl.lights_toggle_off_time
                 self.ring_toggle_timeout = PhoneCtl.ring_toggle_on_time
                 self.ring_stop_time = time.time() + PhoneCtl.ring_max_time
+                if old_state == PhoneCtl.state_listen:
+                    self.ring_disabled_time = time.time()
             else:
                 self.phone.unring()
                 self.light_toggle_timeout = None
