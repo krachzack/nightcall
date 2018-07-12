@@ -178,7 +178,7 @@ class PhoneCtl:
         self.change_state(PhoneCtl.state_ring, None)
 
     def listen(self):
-        self.change_state(PhoneCtl.state_listen, 'pacat -r --rate=8000 --server=$NIGHTCALL_SINK_HOSTNAME --volume=65536 --latency-msec=200 --process-time-msec=200 | pacat -p --rate=8000 --volume=65536 --latency-msec=200 --process-time-msec=200 --client-name=phonelisten --stream-name=phonelisten --server=127.0.0.1')
+        self.change_state(PhoneCtl.state_listen, 'pacat -r --rate=16000 --server=$NIGHTCALL_SINK_HOSTNAME --volume=65536 --latency-msec=200 --process-time-msec=200 | pacat -p --rate=16000 --volume=65536 --latency-msec=200 --process-time-msec=200 --client-name=phonelisten --stream-name=phonelisten --server=127.0.0.1')
 
 # If called as script, run forever
 if __name__ == '__main__':
