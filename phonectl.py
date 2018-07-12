@@ -25,7 +25,7 @@ class PhoneCtl:
     ring_toggle_off_time = 0.3
     ring_max_time = 60.0
     """ When hanging up on an open call and the other end does not, do not ring again for the next three seconds """
-    ring_hangup_disable_time = 3.0
+    ring_hangup_disable_time = 6.0
 
     def __init__(self):
         self.state = PhoneCtl.state_mute

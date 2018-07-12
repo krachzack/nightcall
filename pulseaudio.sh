@@ -93,9 +93,7 @@ function patch_pulse_config {
   if ! grep 'mkdir $XDG_RUNTIME_DIR/pulse' ~/.bashrc
   then
     echo "Patching .bashrc"
-    echo 'if [ ! -d "$XDG_RUNTIME_DIR/pulse" ]; then' >> ~/.bashrc
-    echo '    mkdir $XDG_RUNTIME_DIR/pulse && sudo mount --bind $(readlink /home/pi/.config/pulse/$(cat /etc/machine-id)-runtime) $XDG_RUNTIME_DIR/pulse' >> ~/.bashrc
-    echo 'fi' >> ~/.bashrc
+    echo 'function pamount { mkdir -p $XDG_RUNTIME_DIR/pulse && sudo mount --bind $(readlink /home/pi/.config/pulse/$(cat /etc/machine-id)-runtime) $XDG_RUNTIME_DIR/pulse; }' >> ~/.bashrc
   fi
 }
 
